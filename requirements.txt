@@ -1,10 +1,9 @@
 streamlit==1.41
+opencv-python-headless
 streamlit-pdf-viewer
-pandas
 numpy
 matplotlib
 pypdfium2
 surya-ocr
 pytesseract
-opencv-python-headless
 pillow
