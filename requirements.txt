@@ -6,5 +6,5 @@ matplotlib
 pypdfium2
 surya-ocr
 pytesseract
-opencv-python
+opencv-python-headless
 pillow
