@@ -1,8 +1,8 @@
 # Document Understanding
  
-This repo contains code for a Streamlit based app for extracting data from  PDF documents. 
+This repo contains code for an interactive Streamlit based app for extracting data from PDF documents. 
 
-Have utilised OCR and neural network based tools to extract layout structure and text data from PDF files.
+For this task, have utilised OCR and neural network based open-source tools such as Pytesseract, Surya, and OpenCV.
 
 My experimental work is contained in the Jupyter notebook in nbs folder.
 
@@ -18,7 +18,7 @@ Here are some samples:
 
 
 ### Run:
-The app is build using streamlit and python. Deployed on streamlit cloud and can be accessed here: [Economy Visualizer](to be added)
+The app is build using streamlit and python. Deployed on streamlit cloud and can be accessed here: [Document Understanding](to be added)
 
 NOTE: If the app is on sleep mode. Press the button on the screen to bring it back on. App takes about 4-5mins to re-load.
 
