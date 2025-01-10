@@ -1,0 +1,10 @@
+streamlit==1.41
+streamlit-pdf-viewer
+pandas
+numpy
+matplotlib
+pypdfium2
+surya-ocr
+pytesseract
+opencv-python
+pillow==9.5.0
