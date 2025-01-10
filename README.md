@@ -18,7 +18,7 @@ Here are some samples:
 
 
 ### Run:
-The app is build using streamlit and python. Deployed on streamlit cloud and can be accessed here: [Document Understanding](to be added)
+The app is build using streamlit and python. Deployed on streamlit cloud and can be accessed here: [Document Understanding](https://document-understanding.streamlit.app/)
 
 NOTE: If the app is on sleep mode. Press the button on the screen to bring it back on. App takes about 4-5mins to re-load.
 
