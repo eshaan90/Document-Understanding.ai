@@ -2,7 +2,9 @@
  
 This repo contains code for an interactive Streamlit based app for extracting data from PDF documents. 
 
-For this task, have utilised OCR and neural network based open-source tools such as Pytesseract, Surya, and OpenCV.
+For this task, have utilised OCR and neural network based open-source tools such as Pytesseract, Surya, and OpenCV. 
+
+The inputs are pdf files and the extracted data is saved in json format.
 
 My experimental work is contained in the Jupyter notebook in nbs folder.
 

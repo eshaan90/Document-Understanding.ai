@@ -30,6 +30,7 @@ from PIL import Image, ImageDraw, ImageFont
 st.set_page_config(page_title='Home',layout="wide")
 
 st.title('Machine Document Understanding')
+st.write('Visualize the extraction process of layout and text from PDF documents using AI tools')
 placeholder = st.empty()
 
 # Declare variable.
@@ -57,9 +58,16 @@ with mainTab1:
     col1,col2=st.columns(2,border=True)
 
     col1.header('A. PDF File')
+    col1_placeholder=col1.empty()
+    col1_placeholder.info('PDF file is displayed here. \n\n Load a document from the sidebar.')
+    
     col2.header('B. Selected Image')
+    col2_placeholder=col2.empty()
+    col2_placeholder.info('Image of the page selected from PDF file is displayed here. \n\n Load a document from the sidebar.')
 
     if ss.pdf_ref:
+        col1_placeholder.empty()
+        col2_placeholder.empty()
         make_output_dirs()
 
         pdf = pdfium.PdfDocument(ss.pdf_ref)
@@ -91,13 +99,19 @@ with mainTab1:
 
 
     col3,col4=st.columns(2, border=True)
-    col3.header('C.Visualize the Processed Image')
+    col3.header('C. Visualize the Processed Image')
+    col3_placeholder=col3.empty()
+    col3_placeholder.info('Processed Image is displayed here. \n\n Load a document from the sidebar and process the image using the sidebar tools.')
+    
     col4.header('D.Output(Detection & Recognition)')
-
+    col4_placeholder=col4.empty()
+    col4_placeholder.info('Image with layout data is presented here. \n\n Load a document and select Extract from the sidebar.')
+    
     st.sidebar.title('2. Pre-process Image (Optional)')
     run_preprocessing=st.sidebar.checkbox('Process Image')
     # Logic for Processing Images
     if ss.pdf_ref and run_preprocessing:
+        col3_placeholder.empty()
         with st.sidebar.expander('Tools',expanded=True):
             run_binarization = st.checkbox('Binarization')
             if run_binarization:
@@ -130,7 +144,7 @@ with mainTab1:
             thresh, cv_img = cv2.threshold(cv_img, thresh, max_val, cv2.THRESH_BINARY)
 
         if run_noise_removal:
-            cv_img = noise_removal(cv_img,dilation_kernel_size,erosion_kernel_size,iterations)
+            cv_img = noise_removal(cv_img,erosion_kernel_size,dilation_kernel_size,iterations)
 
         if run_remove_borders: 
             cv_img = remove_borders(cv_img)
@@ -138,6 +152,7 @@ with mainTab1:
         if run_deskew:
             cv_img = deskew(cv_img)
 
+        col3_placeholder.empty()
         col3.image(cv_img, use_container_width=True)
 
 
@@ -170,6 +185,7 @@ with mainTab1:
             draw.rectangle(tuple(bbox.bbox), outline=COLOR_MAP[bbox.label], width=2)
             draw.text([bbox.polygon[0][0],bbox.polygon[0][1]-10],text=f'{bbox.position}:{bbox.label}',fill='green')#, font=ImageFont.truetype("font_path123"))
 
+        col4_placeholder.empty()
         col4.image(input_image_copy, caption=f'Took {math.ceil(end_time-start_time)} secs', use_container_width=True)
         input_image_copy.save(os.path.join(sample_images_filepath,f'{input_filename}_result.png'))
 
