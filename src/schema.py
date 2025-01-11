@@ -30,7 +30,7 @@ for key,_ in LABEL_TO_ID.items():
 
 text_labels={'Text','SectionHeader','Footnote','TextInlineMath',
              'Code','Caption','Equation','PageFooter','PageHeader',
-             'ListItem','Form'}
+             'ListItem'}
 
 pad_size=30
 buffer_space=2

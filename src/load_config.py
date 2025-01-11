@@ -18,6 +18,7 @@ IMAGES=config.get('input', 'IMAGES')
 SAMPLES_FOLDER=config.get('input', 'SAMPLES_FOLDER')
 
 RESULTS_FOLDERNAME=config.get('output', 'RESULTS_FOLDERNAME')
+LAYOUT_STRUCTURE_IMG_FOLDERNAME=config.get('output', 'LAYOUT_STRUCTURE_IMG_FOLDERNAME')
 OUTPUT_JSON_FOLDER_NAME=config.get('output', 'OUTPUT_JSON_FOLDER_NAME')
 PAGE_BLOCK_IMAGE_FOLDERNAME=config.get('output', 'PAGE_BLOCK_IMAGE_FOLDERNAME')
 TABLES_DET_IMAGE_FOLDERNAME=config.get('output', 'TABLES_DET_IMAGE_FOLDERNAME')
@@ -32,12 +33,17 @@ results_path=os.path.join(DATAPATH,RESULTS_FOLDERNAME)
 results_json_filepath=os.path.join(DATAPATH, RESULTS_FOLDERNAME, OUTPUT_JSON_FOLDER_NAME)
 json_file_path=os.path.join(results_json_filepath,'table_results.json')
 
+layouts_image_filepath=os.path.join(DATAPATH, RESULTS_FOLDERNAME, LAYOUT_STRUCTURE_IMG_FOLDERNAME)
 page_blocks_image_filepath=os.path.join(DATAPATH, RESULTS_FOLDERNAME, PAGE_BLOCK_IMAGE_FOLDERNAME)
 table_images_filepath=os.path.join(DATAPATH,RESULTS_FOLDERNAME,TABLES_DET_IMAGE_FOLDERNAME)
 table_blobs_filepath=os.path.join(DATAPATH, RESULTS_FOLDERNAME, TABLE_BLOBS_FOLDERNAME)
 
+
+layout_result_img_path=os.path.join(layouts_image_filepath,f'layout_result.png')
+
 def make_output_dirs():
     os.makedirs(results_json_filepath, exist_ok=True)
+    os.makedirs(layouts_image_filepath,exist_ok=True)
     os.makedirs(page_blocks_image_filepath, exist_ok=True)
     os.makedirs(table_images_filepath, exist_ok=True)
     os.makedirs(table_blobs_filepath, exist_ok=True)

@@ -12,30 +12,36 @@ import pypdfium2 as pdfium
 import cv2
 import random
 import numpy as np
+
+#local
 from process_image import (grayscale, noise_removal, remove_borders,
                             getSkewAngle, rotateImage, display_image,deskew,
                             image_converter_openCV_to_pil, image_converter_pil_to_openCV,
                             table_recognition_from_images)
-from load_config import (MODEL_TAG, results_json_filepath, 
+from load_config import (MODEL_TAG, results_json_filepath, layouts_image_filepath,
+                         layout_result_img_path,
                         page_blocks_image_filepath, json_file_path,
                         table_images_filepath, table_blobs_filepath, 
                         make_output_dirs, delete_output_dirs,sample_images_filepath)
 from ocr import get_image_countours, get_text_from_image
-from utils import save_to_file
+from utils import save_to_file, check_if_any_file_exists, paginator
 from schema import COLOR_MAP, text_labels
 from models import load_models, get_text_detections, get_layout_detection
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 
 
 st.set_page_config(page_title='Home',layout="wide")
 
 st.title('Machine Document Understanding')
-st.write('Visualize the extraction process of layout and text from PDF documents using AI tools')
+# st.write('Visualize the extraction process of layout and text from PDF documents using AI tools')
 placeholder = st.empty()
+
+extraction_completed=False
 
 # Declare variable.
 if 'pdf_ref' not in ss:
     ss.pdf_ref = None
+
 
 
 st.sidebar.title('1. Data')
@@ -45,15 +51,22 @@ data_container.file_uploader('Upload PDF file', type=['pdf'], key='pdf', accept_
 
 # st.write(f'pdf:{ss.pdf},\npdf_ref:{ss.pdf_ref}')
 if not ss.pdf:
-    placeholder.info('Load a pdf from the sidebar. The below containers will populate with the loaded file')
+    placeholder.info('Visualize the extraction process of layout and text from PDF documents using AI \n\nLoad a pdf from the sidebar. The below containers will populate with the loaded file')
     ss.pdf_ref=None
     delete_output_dirs()
+    if 'img_path_mapper' in ss:
+        del ss['img_path_mapper']
 else:
     ss.pdf_ref = ss.pdf  # backup
+    if 'img_path_mapper' not in ss:
+        ss.img_path_mapper= {
+                            'blocks':{},
+                            'table_blobs':{}
+                            }
 # st.write(f'pdf:{ss.pdf},\npdf_ref:{ss.pdf_ref}')
 
 
-mainTab1, mainTab3 = st.tabs(["Document Analysis","Samples"])
+mainTab1, mainTab2, mainTab3 = st.tabs(["Document Analysis", "OCR Analysis", "Samples"])
 with mainTab1:
     col1,col2=st.columns(2,border=True)
 
@@ -160,12 +173,12 @@ with mainTab1:
     detect_tables_checkbox = st.sidebar.checkbox('Detect Table Structure')
     run_extraction = st.sidebar.button('Extract')
 
+    #Logic to extract layout and text from Images
     if ss.pdf_ref and run_extraction:
         with st.spinner('Loading Models'):
             layout_model,layout_processor, det_model, det_processor, table_rec_model, tables_processor = load_models(model_tag=MODEL_TAG)
         placeholder.success('Models loaded!')
 
-        # st.write(det_model, det_processor)
         if run_preprocessing:
             pil_image=image_converter_openCV_to_pil(cv_img)
             input_image=pil_image.copy()
@@ -187,13 +200,14 @@ with mainTab1:
 
         col4_placeholder.empty()
         col4.image(input_image_copy, caption=f'Took {math.ceil(end_time-start_time)} secs', use_container_width=True)
-        input_image_copy.save(os.path.join(sample_images_filepath,f'{input_filename}_result.png'))
+        # input_image_copy.save(os.path.join(sample_images_filepath,f'{input_filename}_result.png'))
+        input_image_copy.save(layout_result_img_path)
 
         structure={}
         if detect_tables_checkbox:
             with st.spinner('Detecting Table Structure'):
                 try:
-                    table_predictions=table_recognition_from_images(input_filename, pil_image, layout_predictions, table_images_filepath,model_tag='surya')
+                    table_predictions=table_recognition_from_images(input_filename, input_image, layout_predictions, table_images_filepath,model_tag='surya')
                     structure['table_data']=table_predictions
                     # save_to_file(table_predictions, json_file_path, output_file_type='json')
                 except Exception as e:
@@ -214,18 +228,65 @@ with mainTab1:
 
             bounding_box = (int(bbox.polygon[0][0]), int(bbox.polygon[0][1]), int(bbox.width), int(bbox.height))
             image_box = get_image_countours(cv_img,bounding_box)
-            cv2.imwrite(os.path.join(page_blocks_image_filepath,f'{bbox.label}_{bbox.position}.png'),image_box)
+            block_filename=f'{bbox.position}:{bbox.label}.png'
+            block_filepath=os.path.join(page_blocks_image_filepath, block_filename)
+            cv2.imwrite(block_filepath,image_box)
 
+            ocr_result=None
+            #extract text if its a text label
             if bbox.label in text_labels:
                 ocr_result = get_text_from_image(image_box)
                 # if not ocr_result or not ocr_result.isalnum():
                 #     ocr_result=None
                 structure[bbox.label][bbox.position]['text']=ocr_result
+            
+            ss['img_path_mapper']['blocks'][block_filename]=(block_filepath,ocr_result)
+        
+        
+        extraction_completed=True
         st.write('Here is the page structure:')
         page_structure=st.container(height=600,border=True)
         page_structure.write(structure)
 
         save_to_file(structure, json_file_path, output_file_type='json')
+
+with mainTab2:
+    col11,col12 = st.columns(2,border=True)
+
+    col11.header('Layout Detection')
+    col12.header('Visualize Blocks')
+    col11_placeholder=col11.empty()
+    col12_placeholder=col12.empty()
+
+    col11_placeholder.info('No data to load! \n\n Extract a page to visualize results')
+    col12_placeholder.info('No data to load! \n\n Extract a page to visualize results')
+
+    if os.path.exists(layout_result_img_path):
+        col11_placeholder.image(layout_result_img_path, use_container_width=True)
+
+    if os.path.isdir(page_blocks_image_filepath):
+        
+        # image_iterator = paginator("Select page", 
+        #                             img_blocks_locmapper['blocks'], 
+        #                             items_per_page=5,
+        #                             on_sidebar=False)
+        # indices_on_page, images_with_captions = map(list, zip(*image_iterator))
+        # images_on_page, captions=zip(*images_with_captions)
+        # st.write(len(images_on_page)==len(captions))
+        
+         if 'img_path_mapper' in ss:
+            block_options = sorted(ss['img_path_mapper']['blocks'].keys())
+            # st.write(block_options)
+            # st.write(ss['img_path_mapper'])
+            selected_block = col12_placeholder.selectbox("Select image blocks to visualize", block_options)
+            if selected_block:
+                block_img_path=ss['img_path_mapper']['blocks'][selected_block][0]
+                if os.path.exists(block_img_path):
+                    col12.image(block_img_path, use_container_width=True)
+                    if ss['img_path_mapper']['blocks'][selected_block][1]!=None:
+                        col12.write(ss['img_path_mapper']['blocks'][selected_block][1])
+    
+
 
 with mainTab3:
     col5,col6,col7 = st.columns(3,border=True)
