@@ -51,7 +51,7 @@ data_container.file_uploader('Upload PDF file', type=['pdf'], key='pdf', accept_
 
 # st.write(f'pdf:{ss.pdf},\npdf_ref:{ss.pdf_ref}')
 if not ss.pdf:
-    placeholder.info('Visualize the extraction process of layout and text from PDF documents using AI \n\nLoad a pdf from the sidebar. The below containers will populate with the loaded file')
+    placeholder.info('Visualize the process of extracting layout and text from PDF documents using AI \n\nLoad a pdf from the sidebar. The below containers will populate with the loaded file')
     ss.pdf_ref=None
     delete_output_dirs()
     if 'img_path_mapper' in ss:
@@ -72,11 +72,11 @@ with mainTab1:
 
     col1.header('A. PDF File')
     col1_placeholder=col1.empty()
-    col1_placeholder.info('PDF file is displayed here. \n\n Load a document from the sidebar.')
+    col1_placeholder.info('Load a PDF file from the sidebar to visualize here.')
     
     col2.header('B. Selected Image')
     col2_placeholder=col2.empty()
-    col2_placeholder.info('Image of the page selected from PDF file is displayed here. \n\n Load a document from the sidebar.')
+    col2_placeholder.info('Image of the page selected from PDF file is displayed here.')
 
     if ss.pdf_ref:
         col1_placeholder.empty()
@@ -258,8 +258,8 @@ with mainTab2:
     col11_placeholder=col11.empty()
     col12_placeholder=col12.empty()
 
-    col11_placeholder.info('No data to load! \n\n Extract a page to visualize results')
-    col12_placeholder.info('No data to load! \n\n Extract a page to visualize results')
+    col11_placeholder.info('Upload and extract a page to visualize results here')
+    col12_placeholder.info('Upload and extract a page to visualize individual block OCR results here')
 
     if os.path.exists(layout_result_img_path):
         col11_placeholder.image(layout_result_img_path, use_container_width=True)
